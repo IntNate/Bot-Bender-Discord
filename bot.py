@@ -1,3 +1,4 @@
+from ast import alias
 from ctypes import resize
 
 from numpy import append
@@ -8,6 +9,8 @@ import asyncio
 import time
 import random
 
+intents = discord.Intents.default()
+intents.members = True
 
 
 normal = Tickets("normal", 30, 100)
@@ -15,16 +18,13 @@ plus = Tickets("plus", 15, 450)
 premium =Tickets("premium", 5, 1000)
 
 token = "OTU5OTkxODQ5NjAxMzUxNzIy.Ykj8FA.-YesWwQNdltUozW8GhpSRBd3xDk"
-bot = commands.Bot(command_prefix="?")
+bot = commands.Bot(command_prefix="?", intents=intents)
 
 
 data = {
 
-    #id                 #wallet
+    "id":"wallet",
     299956001573044224 : 0,
-    
-
-    
     }
 
 
@@ -52,7 +52,7 @@ async def test(ctx, what):
 async def buy(ctx, ticket):
     
     list_tickets= ["normal","plus", "premium"]
-    
+    reward = 10000
     author = ctx.message.author.mention
     id = ctx.message.author.id
     
@@ -72,6 +72,7 @@ async def buy(ctx, ticket):
         result = premium.play()
         data[id] += premium.price
     
+    
     message = await ctx.send(f"{author} a lancé la machine...")
     
     
@@ -85,7 +86,10 @@ async def buy(ctx, ticket):
             await asyncio.sleep(0.5)
             await message.edit(content="⭐⭐⭐")
             await asyncio.sleep(0.5)
-            await ctx.send(f"{author} tu as gagné ! 🤩")
+            await ctx.send(f"{author} tu as gagné {reward} G ! 🤩")
+            data[id] -= reward
+            
+            
     else:
         await asyncio.sleep(1)
         list_emoji = ["❌", "❌", "❌","⭐","⭐"]  
@@ -180,7 +184,28 @@ async def refund(ctx, member:discord.Member, amount):
         else:
             data[member.id] = data[member.id] - int(amount)
             await ctx.reply(f"La dette de {member} a été réduite de {amount} G 🪙")
-            
-        
+           
+@bot.command(aliases=["sex"])
+async def sexe(ctx, member:discord.Member=""):
+    list_members = ctx.message.guild.members
+    random_members = (list_members[random.randint(0, (len(list_members) - 1))])
+    if member == "":
+        member = ctx.message.author
+    
+    await ctx.send(f"{member.mention} doit faire le sexe avec {random_members.mention} 😳🔞")
+    
+ 
+@bot.command()
+async def mp(ctx, member:discord.Member, *, msg):
+    await ctx.message.delete()
+    user = bot.get_user(member.id) or await bot.fetch_user(member.id)
+    sender = bot.get_user(ctx.message.author.id) or await bot.fetch_user(ctx.message.author.id)
+    try:
+        await user.send(f"Tu as reçu un message anonyme ! 💌\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n{msg}")
+        await sender.send("le message a bien été envoyé ! 💌")
+    except:
+        await sender.send("l'utilisateur n'a pas pu recevoir ton message 😟")
+    
+    
 
 bot.run(token)
