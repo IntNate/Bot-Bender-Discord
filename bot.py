@@ -14,11 +14,8 @@ normal = Tickets("normal", 30, 100)
 plus = Tickets("plus", 15, 450)
 premium =Tickets("premium", 5, 1000)
 
-
-
 token = "OTU5OTkxODQ5NjAxMzUxNzIy.Ykj8FA.-YesWwQNdltUozW8GhpSRBd3xDk"
 bot = commands.Bot(command_prefix="?")
-
 
 
 data = {
@@ -35,7 +32,6 @@ pute_list = []
 
 
 async def check_id(ctx, id):
-    
     
     if id not in data:
         print(data)
