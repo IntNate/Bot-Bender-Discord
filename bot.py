@@ -30,19 +30,16 @@ data = {
     
     }
 
+
+pute_list = []
+
+
 async def check_id(ctx, id):
     
     
     if id not in data:
         print(data)
         data[id] = 0
-        await ctx.send(data[id])
-
-
-
-
-
-
 
 
 @bot.event
@@ -50,13 +47,9 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("Préfix : ?"))
 
 
-
 @bot.command()
 async def test(ctx, what):
     await ctx.send(f"test {what}")
-
-
-
 
 
 @bot.command()
@@ -67,7 +60,6 @@ async def buy(ctx, ticket):
     author = ctx.message.author.mention
     id = ctx.message.author.id
     
- 
     await check_id(ctx, id)
     if ticket not in list_tickets:
         await buy.error()
@@ -83,6 +75,7 @@ async def buy(ctx, ticket):
     elif ticket == "premium":
         result = premium.play()
         data[id] += premium.price
+    
     message = await ctx.send(f"{author} a lancé la machine...")
     
     
@@ -98,11 +91,7 @@ async def buy(ctx, ticket):
             await asyncio.sleep(0.5)
             await ctx.send(f"{author} tu as gagné ! 🤩")
     else:
-        
-        
         await asyncio.sleep(1)
-                
-                
         list_emoji = ["❌", "❌", "❌","⭐","⭐"]  
         random.shuffle(list_emoji)
         await message.edit(content=":white_large_square::white_large_square::white_large_square:")        
@@ -116,7 +105,6 @@ async def buy(ctx, ticket):
         await ctx.send(f"{author} tu as perdu... :pensive:")
     
 
-    
 @buy.error
 async def on_command_error(ctx, error):
     await ctx.send("""```Erreur de syntaxe\n
@@ -125,18 +113,8 @@ syntaxe :!buy   <ticket>\n
                 plus\n
                 premium```""")
 
-
-
-
-
-
 @bot.command(aliases=["debt"])
 async def dette(ctx, member: discord.Member=""):
-    
-    
-    
-    
-    
     
     if member == "":
         member = ctx.message.author
@@ -149,8 +127,6 @@ async def dette(ctx, member: discord.Member=""):
         elif member_wallet < 0:
             await ctx.send(f"Le serveur vous doit {'{:}'.format(abs(member_wallet))} G 🪙")
 
-            
-            
     else:
         await check_id(ctx, member.id)
         member_wallet = data[member.id]
@@ -163,54 +139,34 @@ async def dette(ctx, member: discord.Member=""):
         elif member_wallet < 0:
             await ctx.send(f"Le serveur doit à {member.mention} {'{:}'.format(abs(member_wallet))} G 🪙")
     
-    
-    
-
 
 @bot.command(aliases=["probas"])
 async def proba(ctx, *, what):
     await ctx.reply(f"les probabilités sont de {random.randint(0,100)}%")
-    
-    
 
 
-
-
-
-
-
-
-
-
-pute_list = []
 @bot.command()
 async def pute(ctx, member:discord.Member):
     
     if str(member) not in pute_list:
         await ctx.reply(f"{member.mention} a été ajouté à la liste des putes du serveur avec succès ✅")
         pute_list.append(str(member))
+    
     else:
         await ctx.reply(f"{member.mention} est déjà dans la liste des putes du serveur")
     
 
-
 @bot.command(aliases=["putelist","puteliste","listepute","putelistes"])
 async def listputes(ctx):
     
-    
-
-
     x = "\n".join(pute_list)
-
-
     await ctx.reply(f"liste des putes : \n{x}")
     
 
-
-
-
 @bot.command(aliases=["pay"])
 async def refund(ctx, member:discord.Member, amount):
+    await check_id(ctx, ctx.message.author.id)
+    
     if amount == "all":
         if data[member.id] < 0:
             await ctx.reply("L'utilisateur est déjà en positif !")
@@ -230,22 +186,5 @@ async def refund(ctx, member:discord.Member, amount):
             await ctx.reply(f"La dette de {member} a été réduite de {amount} G 🪙")
             
         
-        
-        
-            
-    
-            
-        
-    
-    
-
-
-
-
-
-
-
-
-
 
 bot.run(token)
