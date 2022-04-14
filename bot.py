@@ -17,7 +17,7 @@ normal = Tickets("normal", 30, 100)
 plus = Tickets("plus", 15, 450)
 premium =Tickets("premium", 5, 1000)
 
-token = "OTU5OTkxODQ5NjAxMzUxNzIy.Ykj8FA.-YesWwQNdltUozW8GhpSRBd3xDk"
+token = "OTU5OTkxODQ5NjAxMzUxNzIy.Ykj8FA.hbbfmgEgS37KyNSpZtqBxtY2wQs"
 bot = commands.Bot(command_prefix="?", intents=intents)
 
 
