@@ -21,7 +21,7 @@ bot = commands.Bot(command_prefix="?", intents=intents)
 
 data = {
 
-    "id":"wallet",
+    "id"    :   "dette",
     299956001573044224 : 0,
     }
 
@@ -267,13 +267,6 @@ async def risibank(ctx):
     embed.set_author(name='Image aléatoire venant de RisiBank :',icon_url='')
     
     await ctx.reply(embed=embed)
-
-   
-   
-
-    
-    
-
 
 
 bot.run(token)
