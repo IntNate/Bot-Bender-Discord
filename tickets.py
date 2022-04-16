@@ -11,7 +11,7 @@ class Tickets():
         """        
         
         
-        
+    
         self.name = name
         self.probability = probability
         self.price = price

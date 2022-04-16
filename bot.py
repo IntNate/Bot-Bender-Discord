@@ -1,13 +1,11 @@
-from ast import alias
-from ctypes import resize
-
-from numpy import append
 from tickets import Tickets
 import discord
 from discord.ext import commands
 import asyncio
 import time
 import random
+import glob
+import requests
 
 intents = discord.Intents.default()
 intents.members = True
@@ -185,7 +183,7 @@ async def refund(ctx, member:discord.Member, amount):
             data[member.id] = data[member.id] - int(amount)
             await ctx.reply(f"La dette de {member} a été réduite de {amount} G 🪙")
            
-@bot.command(aliases=["sex"])
+@bot.command(aliases=["sex","seggs"])
 async def sexe(ctx, member:discord.Member=""):
     list_members = ctx.message.guild.members
     random_members = (list_members[random.randint(0, (len(list_members) - 1))])
@@ -207,5 +205,75 @@ async def mp(ctx, member:discord.Member, *, msg):
         await sender.send("l'utilisateur n'a pas pu recevoir ton message 😟")
     
     
+@bot.command(aliases=["meow","chat"])
+async def miaou(ctx):    
+
+    file_path_type = ["./chatent/*.png", "./chatent/*.jpg","./chatent/*.jpeg"]
+    images = glob.glob(random.choice(file_path_type))
+    random_image = random.choice(images)
+
+    await ctx.reply("meow :cat:", file=discord.File(random_image))
+
+
+@bot.command(aliases=["who"])
+async def qui(ctx, *,sentence):
+    list_members = ctx.message.guild.members
+    random_members = (list_members[random.randint(0, (len(list_members) - 1))])
+    await ctx.reply(f'celui qui {sentence} est {random_members.mention}')
+    
+
+@bot.command()
+async def question(ctx):    
+    x = random.randint(0,1)
+    oui_list = ["oui", "très clairement", "absolument", "c'est sûr","tout à fait", "certainement"]
+    non_list = ["non", "absolument pas", "pas du tout", "c'est impossible", "aucunement", "nope"]
+    if x == 0:
+        await ctx.reply(random.choice(non_list))
+    else:
+        await ctx.reply(random.choice(oui_list))
+    
+
+@bot.command(aliases=['r'])
+async def risibank(ctx):
+    check = False
+    while check == False:
+        
+        risibank_logo = 'https://risibank.fr/logo.png'
+        url = 'https://risibank.fr/api/v1/medias/random?only_one=true'
+        r = requests.get(url).json()
+        rjson = r[0]
+        image = rjson['source_url']
+        author_id = rjson['user_id']
+        
+        url2 = f'https://risibank.fr/api/v1/users/{author_id}/collections'
+        r2 = requests.get(url2).json()
+        r2json = r2[0]
+        author_name = r2json['user']['username_custom']
+        
+        image_id = rjson['id']
+        image_tag = rjson['slug']
+        
+        if rjson['source_exists'] == True and rjson['is_deleted'] == False:
+            check = True
+        
+    embed = discord.Embed(
+    
+        title = f'Auteur : {author_name}',
+        description = f'[Lien RisiBank](https://risibank.fr/media/{image_id}-{image_tag})',
+        colour = discord.Colour.blue()
+    )
+    embed.set_image(url=image)
+    embed.set_thumbnail(url=risibank_logo)
+    embed.set_author(name='Image aléatoire venant de RisiBank :',icon_url='')
+    
+    await ctx.reply(embed=embed)
+
+   
+   
+
+    
+    
+
+
 
 bot.run(token)
