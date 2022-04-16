@@ -6,6 +6,14 @@ import time
 import random
 import glob
 import requests
+from bs4 import BeautifulSoup
+import json
+
+
+with open('token.json', 'r+') as file:
+    token = json.load(file)
+
+
 
 intents = discord.Intents.default()
 intents.members = True
@@ -15,7 +23,7 @@ normal = Tickets("normal", 30, 100)
 plus = Tickets("plus", 15, 450)
 premium =Tickets("premium", 5, 1000)
 
-token = "OTU5OTkxODQ5NjAxMzUxNzIy.Ykj8FA.hbbfmgEgS37KyNSpZtqBxtY2wQs"
+# token = "OTU5OTkxODQ5NjAxMzUxNzIy.Ykj8FA.hbbfmgEgS37KyNSpZtqBxtY2wQs"
 bot = commands.Bot(command_prefix="?", intents=intents)
 
 
@@ -269,4 +277,37 @@ async def risibank(ctx):
     await ctx.reply(embed=embed)
 
 
-bot.run(token)
+@bot.command(aliases=['bible','genèse'])
+async def genese(ctx):
+    url = 'https://www.bibleenligne.com/bible/gn.html'
+    r = requests.get(url)
+
+
+    soup = BeautifulSoup(r.text,  features="lxml")
+    verset = soup.find_all(class_='verset')
+
+    verset_number = random.randint(0, 1532)
+    await ctx.reply(verset[verset_number].text)
+
+@bot.command()
+async def nate(ctx):
+    nate = ['Nate est un génie.',
+            'Nate est un grand écrivain.',
+            'Nate aime uniquement les femmes.',
+            'Nate a des cheveux soyeux.',
+            'Nate est fort sympathique.',
+            'Nate est un grand orateur.',
+            'Nate a de jolis yeux.',
+            'Nate est modeste.',
+            'Nate est altruiste.',
+            'Nate est adorable.',
+            'Nate est dynamique.',
+            'Nate est élégant.',
+            'Nate est romantique.',
+            'Nate est diplomate.',
+            'Nate est mignon.']
+    await ctx.reply(random.choice(nate))
+
+
+
+bot.run(token['token'])
