@@ -309,5 +309,76 @@ async def nate(ctx):
     await ctx.reply(random.choice(nate))
 
 
+async def check_nfsw(ctx):
+    if ctx.channel.is_nsfw() == True:
+        return True
+    else:
+        return False
+    
+    
+    
+
+@bot.command(aliases=['nudes'])
+async def nude(ctx):
+    if await check_nfsw(ctx) == False:
+        nude.error()
+        
+    url = 'https://www.balancetanude.fr/category/photos-snaps-18/'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text,  features="lxml")
+    max_page = soup.find_all(class_='page-numbers')
+    max_page = max_page[7].text[4:8]
+
+    random_page = random.randint(1, int(max_page))
+    url2 = f'https://www.balancetanude.fr/category/photos-snaps-18/page/{random_page}/'
+    r2 = requests.get(url2)
+
+    got = False
+    while got == False:
+        
+        random_image = random.randint(1,29)
+        soup3 = BeautifulSoup(r2.text,  features="lxml")
+        nude_name = soup3.find_all(class_='entry-title')
+        try :
+            nude_name = nude_name[random_image].find('a')
+            nude_name = nude_name.text
+            got = True
+        except(IndexError):
+            pass
+
+    #lien
+    soup4 = BeautifulSoup(r2.text,  features="lxml")
+    nude_link = soup4.find_all(class_='entry-title',)
+    nude_link = nude_link[random_image].find('a')['href']
+    #get nudes
+    str(nude_link)
+    url3 = nude_link
+
+    #image
+    url3 = nude_link
+    r3 = requests.get(url3)
+    soup5 = BeautifulSoup(r3.text, features="lxml")
+    nude_image = soup5.find_all('img')
+    nude_image = nude_image[1]['src']
+    
+    logo = 'https://www.balancetanude.fr/wp-content/uploads/2020/11/logo.webp'
+    
+    embed = discord.Embed(
+    
+        title = f'{nude_name}',
+        description = f'[Lien]({nude_link})',
+        colour = discord.Colour.red()
+    )
+    embed.set_image(url=nude_image)
+    embed.set_thumbnail(url=logo)
+    embed.set_author(name=f'',icon_url=logo)
+    
+    await ctx.reply(embed=embed)
+    
+    
+@nude.error
+async def on_command_error(ctx, error):
+    await ctx.reply('Vous devez être dans un salon NFSW pour utiliser cette commande !')
+
 
 bot.run(token['token'])
