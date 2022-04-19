@@ -8,7 +8,7 @@ import glob
 import requests
 from bs4 import BeautifulSoup
 import json
-
+import os
 
 with open('token.json', 'r+') as file:
     token = json.load(file)
@@ -216,11 +216,10 @@ async def mp(ctx, member:discord.Member, *, msg):
 @bot.command(aliases=["meow","chat"])
 async def miaou(ctx):    
 
-    file_path_type = ["./chatent/*.png", "./chatent/*.jpg","./chatent/*.jpeg"]
-    images = glob.glob(random.choice(file_path_type))
-    random_image = random.choice(images)
+    file_path_type = ["./chatent/*."]
 
-    await ctx.reply("meow :cat:", file=discord.File(random_image))
+    await ctx.reply('meooow :cat:', file=discord.File("chatent\\" + random.choice(os.listdir("chatent"))))
+    
 
 
 @bot.command(aliases=["who"])
@@ -305,7 +304,8 @@ async def nate(ctx):
             'Nate est élégant.',
             'Nate est romantique.',
             'Nate est diplomate.',
-            'Nate est mignon.']
+            'Nate est mignon.',
+            'Nate est un visionnaire']
     await ctx.reply(random.choice(nate))
 
 
@@ -381,4 +381,10 @@ async def on_command_error(ctx, error):
     await ctx.reply('Vous devez être dans un salon NFSW pour utiliser cette commande !')
 
 
+@bot.command(aliases=['pied','pieds','foot','feets'])
+async def feet(ctx):
+    await ctx.reply(':foot:')
+
+
 bot.run(token['token'])
+
