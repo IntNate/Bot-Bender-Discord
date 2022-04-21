@@ -9,9 +9,15 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+# -*- coding: utf-8 -*-
 
 with open('token.json', 'r+') as file:
     token = json.load(file)
+    
+with open('listword.txt', 'r', encoding='utf-8') as f:
+    listwords = [line.strip() for line in f]
+    
+print(listwords)
 
 
 
@@ -386,5 +392,23 @@ async def feet(ctx):
     await ctx.reply(':foot:')
 
 
+@bot.command()
+async def mot(ctx):
+    word = random.choice(listwords)
+    word = word.lower()
+    url = f'https://www.larousse.fr/dictionnaires/francais/{word}'
+    
+    r =requests.get(url)
+    soup = BeautifulSoup(r.text, features="lxml")
+    x = soup.find(class_="DivisionDefinition")
+    print(word)
+    print(url)
+    
+    
+    await ctx.reply(f'{word} : {x.text}')
+    
+
+
 bot.run(token['token'])
+
 
