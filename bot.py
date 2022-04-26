@@ -50,6 +50,15 @@ async def check_id(ctx, id):
         data[id] = 0
 
 
+def rc():
+    C = random.randint(0, 255)
+    return C
+
+
+
+
+
+
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game("Préfix : ?"))
@@ -365,7 +374,7 @@ async def nude(ctx):
     r3 = requests.get(url3)
     soup5 = BeautifulSoup(r3.text, features="lxml")
     nude_image = soup5.find_all('img')
-    nude_image = nude_image[1]['src']
+    nude_image = nude_image[2]['src']
     
     logo = 'https://www.balancetanude.fr/wp-content/uploads/2020/11/logo.webp'
     
@@ -401,12 +410,51 @@ async def mot(ctx):
     r =requests.get(url)
     soup = BeautifulSoup(r.text, features="lxml")
     x = soup.find(class_="DivisionDefinition")
-    print(word)
-    print(url)
-    
     
     await ctx.reply(f'{word} : {x.text}')
     
+    
+@bot.command(aliases=['stats','membre','statistique','statistiques'])
+async def stat(ctx):
+    members = 0
+    bots = 0
+    
+    for member in ctx.guild.members:
+        if not member.bot:
+            members += 1
+        elif member.bot:
+            bots += 1
+    total = members + bots
+
+    embed=discord.Embed(title="Statistique", color=discord.Color.from_rgb(rc(), rc(), rc()))
+    embed.add_field(name=":technologist:", value=f"{members}", inline=True)
+    embed.add_field(name=":robot:", value=f"{bots}", inline=True)
+    embed.add_field(name="total", value=f"{total}", inline=True)
+    await ctx.reply(embed=embed)
+        
+    
+@bot.event
+async def on_member_join(member):
+    members = 0
+    bots = 0
+    guild = bot.get_guild(959535814268821504)
+    for guild in guild.members:
+        if not guild.bot:
+            members += 1
+        elif guild.bot:
+            bots += 1
+    total = members + bots
+    channel = bot.get_channel(959535816781217865)
+    
+    await channel.send(f'bienvenue à toi {member.mention} tu es notre {members}ème membre !')
+    await channel.send(f'https://images.bfmtv.com/2SqfuHK19YYAakuRxxXIZRCQijE=/72x2:1976x1073/1904x0/images/La-serie-Futurama-1233476.jpg')
+
+
+
+@bot.command(aliases=['github','git'])
+async def code(ctx):
+    await ctx.reply('https://github.com/IntNate/bot-contre-serv')
+
 
 
 bot.run(token['token'])
