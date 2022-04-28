@@ -480,20 +480,22 @@ async def tg(ctx):
 
 bp_phrase = ["s'est pris une belle droite",
              "a été bourpifé avec succès",
-             "s'est prit une sacrée raclée",
+             "s'est pris une sacrée raclée",
              "a été frappé avec rigueur",
              "a été vincented",
              "a été atomisé",
              "a été bifflé sans vergogne",
-             "a été brissé en 2 ",
+             "a été brisé en 2 ",
              "s'est fait enculé ",
              "a été... oh bordel, c'est pas beau à voir",
              "s'est fait détruire",
-             "s'est fait allumer sans pitié"
+             "s'est fait allumer sans pitié",
+             "a été pazifié",
+             ""
              ]
 
 
-@commands.cooldown(2, 86400,commands.BucketType.user)
+@commands.cooldown(1, 3600,commands.BucketType.user)
 @bot.command()
 async def bp(ctx, member:discord.Member):
     if str(member.id) not in bp_data:
@@ -522,7 +524,7 @@ async def on_command_error(ctx, error):
         await ctx.reply('mauvaise syntaxe : `!bp @membre`')
     elif isinstance(error, commands.CommandOnCooldown):
         cd_remaining = datetime.timedelta(seconds=round(error.retry_after, 0))
-        await ctx.reply(f'vous ne pouvez utiliser que 2 bourrepif par jour réessayez dans : {cd_remaining}')
+        await ctx.reply(f'vous ne pouvez utiliser que 1 bourrepif par heure réessayez dans : {cd_remaining} H ')
 
 @bot.command(aliases=['infobp', 'bpi', 'bpstat', 'bpstats', 'bps'])
 async def bpinfo(ctx, member:discord.Member=None):
