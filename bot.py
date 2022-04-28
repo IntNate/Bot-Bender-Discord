@@ -459,7 +459,7 @@ async def on_member_join(member):
 
 @bot.command(aliases=['github','git'])
 async def code(ctx):
-    await ctx.reply('https://github.com/IntNate/bot-contre-serv')
+    await ctx.reply('Mon code : https://github.com/IntNate/Bot-Bender-Discord')
 
 
 @bot.command()
