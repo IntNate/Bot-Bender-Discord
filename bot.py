@@ -525,6 +525,9 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.CommandOnCooldown):
         cd_remaining = datetime.timedelta(seconds=round(error.retry_after, 0))
         await ctx.reply(f'vous ne pouvez utiliser que 1 bourrepif par heure réessayez dans : {cd_remaining} H ')
+    else:
+        bp.reset_cooldown(ctx)
+
 
 @bot.command(aliases=['infobp', 'bpi', 'bpstat', 'bpstats', 'bps'])
 async def bpinfo(ctx, member:discord.Member=None):
