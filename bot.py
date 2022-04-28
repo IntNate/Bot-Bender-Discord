@@ -9,6 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+import datetime
 # -*- coding: utf-8 -*-
 
 with open('token.json', 'r+') as file:
@@ -17,7 +18,13 @@ with open('token.json', 'r+') as file:
 with open('listword.txt', 'r', encoding='utf-8') as f:
     listwords = [line.strip() for line in f]
     
-print(listwords)
+with open("bp_data.json", "r") as file:
+    bp_data = json.load(file)
+
+    
+    
+
+
 
 
 
@@ -29,7 +36,6 @@ normal = Tickets("normal", 30, 100)
 plus = Tickets("plus", 15, 450)
 premium =Tickets("premium", 5, 1000)
 
-# token = "OTU5OTkxODQ5NjAxMzUxNzIy.Ykj8FA.hbbfmgEgS37KyNSpZtqBxtY2wQs"
 bot = commands.Bot(command_prefix="?", intents=intents)
 
 
@@ -454,6 +460,110 @@ async def on_member_join(member):
 @bot.command(aliases=['github','git'])
 async def code(ctx):
     await ctx.reply('https://github.com/IntNate/bot-contre-serv')
+
+
+@bot.command()
+async def tg(ctx):
+    url = f'https://citation-celebre.leparisien.fr/citation/se-taire?page={random.randint(1,4)}'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, features='lxml')
+    
+    citation = soup.find_all(class_='laCitation')
+    auteur = soup.find_all(class_ = 'auteurLien')
+    x = random.randint(0,len(auteur))
+
+    citation = citation[x].q.a.text
+    auteur = auteur[x].text
+    await ctx.reply(f'"{citation}"\n**{auteur}**')
+
+
+
+bp_phrase = ["s'est pris une belle droite",
+             "a été bourpifé avec succès",
+             "s'est prit une sacrée raclée",
+             "a été frappé avec rigueur",
+             "a été vincented",
+             "a été atomisé",
+             "a été bifflé sans vergogne",
+             "a été brissé en 2 ",
+             "s'est fait enculé ",
+             "a été... oh bordel, c'est pas beau à voir",
+             "s'est fait détruire",
+             "s'est fait allumer sans pitié"
+             ]
+
+
+@commands.cooldown(2, 86400,commands.BucketType.user)
+@bot.command()
+async def bp(ctx, member:discord.Member):
+    if str(member.id) not in bp_data:
+        bp_data[str(member.id)] = {'victime': 0,
+                              'agresseur' : 0}
+    if str(ctx.author.id) not in bp_data:
+        bp_data[str(ctx.author.id)] = {'victime': 0,
+                                  'agresseur' : 0}
+        
+    
+    
+    
+    bp_data[str(ctx.author.id)]['agresseur'] += 1
+    bp_data[str(member.id)]['victime'] += 1
+    
+    with open("bp_data.json", "w+") as file:
+        json.dump(bp_data, file)
+    await ctx.reply(f'{member.mention} {random.choice(bp_phrase)} par {ctx.author.mention}')
+    
+
+@bp.error
+async def on_command_error(ctx, error):
+    
+    if isinstance(error, commands.errors.MissingRequiredArgument):
+        bp.reset_cooldown(ctx)
+        await ctx.reply('mauvaise syntaxe : `!bp @membre`')
+    elif isinstance(error, commands.CommandOnCooldown):
+        cd_remaining = datetime.timedelta(seconds=round(error.retry_after, 0))
+        await ctx.reply(f'vous ne pouvez utiliser que 2 bourrepif par jour réessayez dans : {cd_remaining}')
+
+@bot.command(aliases=['infobp', 'bpi', 'bpstat', 'bpstats', 'bps'])
+async def bpinfo(ctx, member:discord.Member=None):
+    if member == None:
+        member = ctx.author
+    
+    if str(member.id) not in bp_data:
+        bp_data[str(member.id)] = {'victime': 0,
+                              'agresseur' : 0}
+        with open("bp_data.json", "w+") as file:
+            
+            json.dump(bp_data, file)
+
+    
+    agresseur = bp_data[str(member.id)]['agresseur']
+    victime = bp_data[str(member.id)]['victime']
+    
+    embed=discord.Embed(title=f"Statistique de {member}", color=discord.Color.from_rgb(rc(), rc(), rc()))
+    embed.add_field(name="🥊", value=f"{agresseur}", inline=True)
+    embed.add_field(name="☠️", value=f"{victime}", inline=True)
+    if victime == 0:
+        ratio = float(agresseur)
+    else:
+        ratio = agresseur / victime
+    
+    
+    embed.add_field(name="Ratio", value=f"{round(ratio, 2)}", inline=True)
+    await ctx.reply(embed=embed)
+    
+
+    
+    
+    
+
+
+
+
+
+
+
+
 
 
 
