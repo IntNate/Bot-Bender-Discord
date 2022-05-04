@@ -1,6 +1,9 @@
+from email import message
+
+from async_timeout import timeout
 from tickets import Tickets
-import discord
-from discord.ext import commands
+import nextcord as discord
+from nextcord.ext import commands
 import asyncio
 import time
 import random
@@ -10,6 +13,10 @@ from bs4 import BeautifulSoup
 import json
 import os
 import datetime
+
+
+import humanfriendly
+
 # -*- coding: utf-8 -*-
 
 with open('token.json', 'r+') as file:
@@ -36,8 +43,29 @@ normal = Tickets("normal", 30, 100)
 plus = Tickets("plus", 15, 450)
 premium =Tickets("premium", 5, 1000)
 
-bot = commands.Bot(command_prefix="?", intents=intents)
+bot = commands.Bot(command_prefix="?",intents=intents)
 
+
+intervals = (
+    ('years', 31536000),
+    ('weeks', 604800),  # 60 * 60 * 24 * 7
+    ('days', 86400),    # 60 * 60 * 24
+    ('hours', 3600),    # 60 * 60
+    ('minutes', 60),
+    ('seconds', 1),
+)
+
+def display_time(seconds, granularity=3):
+    result = []
+    seconds = int(seconds)
+    for name, count in intervals:
+        value = seconds // count
+        if value:
+            seconds -= value * count
+            if value == 1:
+                name = name.rstrip('s')
+            result.append("{} {}".format(value, name))
+    return ', '.join(result[:granularity])
 
 data = {
 
@@ -222,17 +250,33 @@ async def sexe(ctx, member:discord.Member=""):
     await ctx.send(f"{member.mention} doit faire le sexe avec {random_members.mention} 😳🔞")
     
  
-@bot.command()
+@bot.command(aliases=['dm'])
+@commands.cooldown(1, 600,commands.BucketType.user)
 async def mp(ctx, member:discord.Member, *, msg):
     await ctx.message.delete()
     user = bot.get_user(member.id) or await bot.fetch_user(member.id)
     sender = bot.get_user(ctx.message.author.id) or await bot.fetch_user(ctx.message.author.id)
     try:
         await user.send(f"Tu as reçu un message anonyme ! 💌\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n{msg}")
-        await sender.send("le message a bien été envoyé ! 💌")
+        await sender.send(f"le message a bien été envoyé ! 💌\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n{msg}")
     except:
         await sender.send("l'utilisateur n'a pas pu recevoir ton message 😟")
-    
+
+
+@mp.error
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+
+        await ctx.message.delete()
+        cd_remaining = display_time(error.retry_after)
+        bot = await ctx.send(f'vous ne pouvez utiliser que 1 mp toutes les 10mn réessayez dans : {cd_remaining}')
+        await asyncio.sleep(5)
+        await bot.delete()
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.message.delete()
+        await ctx.send("commande incorrecte ! : `?mp @pseudo [message]`")
+        mp.reset_cooldown(ctx)
+
     
 @bot.command(aliases=["meow","chat"])
 async def miaou(ctx):    
@@ -491,7 +535,6 @@ bp_phrase = ["s'est pris une belle droite",
              "s'est fait détruire",
              "s'est fait allumer sans pitié",
              "a été pazifié",
-             ""
              ]
 
 
@@ -556,19 +599,41 @@ async def bpinfo(ctx, member:discord.Member=None):
     
     embed.add_field(name="Ratio", value=f"{round(ratio, 2)}", inline=True)
     await ctx.reply(embed=embed)
+
+
+
+
     
 
+@bot.command(pass_context=True)
+@commands.has_permissions(moderate_members=True)
+async def mute(ctx, member:discord.Member, time=None, *, reason=None):
     
+    time = humanfriendly.parse_timespan(time)
     
+    await member.timeout(timeout = datetime.datetime.utcnow() + datetime.timedelta(seconds=time), reason=reason)
+    await ctx.reply(f"L'utilisateur :\n> {member}\nA été mute pendant :\n> {display_time(time, 4)}\nRaison :\n> {reason}")
+    member = bot.get_user(member.id) or await bot.fetch_user(member.id)
+    await member.send(f"Vous avez été mute par\n> {ctx.author}\nPendant :\n> {display_time(time, 4)}\nRaison :\n> {reason}")
+
+
+
+@bot.command()
+@commands.has_permissions(moderate_members=True)
+async def unmute(ctx, member:discord.Member):
+    await member.edit(timeout=None)
+    await ctx.reply(f"{member.display_name} a été unmute")
     
+@mute.error
+@unmute.error
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.CommandInvokeError):
+        await ctx.reply("la durée d'un mute ne peut pas dépasser 3 semaines")
+    elif isinstance(error, commands.errors.MissingPermissions):
+        await ctx.reply("Vous n'avez pas le droit de faire cela")
 
 
-
-
-
-
-
-
+    
 
 
 
